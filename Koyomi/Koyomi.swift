@@ -26,7 +26,7 @@ import UIKit
      - Parameter dateString: The current date string.
      */
     @objc optional func koyomi(_ koyomi: Koyomi, currentDateString dateString: String)
-
+    
     /**
      The koyomi calls this method before select days
      
@@ -38,10 +38,10 @@ import UIKit
      - Returns: true if the item should be selected or false if it should not.
      */
     @objc optional func koyomi(_ koyomi: Koyomi, shouldSelectDates date: Date?, to toDate: Date?, withPeriodLength length: Int) -> Bool
-
+    
     /**
      Returns selection color for individual cells.
-    
+     
      - Parameter koyomi:    The current Koyomi instance.
      - Parameter indexPath: The index path of the cell that was selected.
      - Parameter date:      The date representing current item.
@@ -71,7 +71,7 @@ import UIKit
      - Returns: A font for item at the indexPath or nil for default font.
      */
     @objc optional func koyomi(_ koyomi: Koyomi, fontForItemAt indexPath: IndexPath, date: Date) -> UIFont?
-
+    
 }
 
 // MARK: - KoyomiStyle -
@@ -128,6 +128,8 @@ public enum ContentPosition {
     case bottomLeft, bottomCenter, bottomRight
     case custom(x: CGFloat, y: CGFloat)
 }
+
+public enum DotStatus { case none, oneFinished, oneUnfinished, both }
 
 // MARK: - Koyomi -
 
@@ -216,12 +218,12 @@ final public class Koyomi: UICollectionView {
         }
     }
     
-    @IBInspectable public var dotViewDiameter: CGFloat = 0.1 {
-        didSet {
-            reloadData()
-        }
-    }
-
+    //    @IBInspectable public var dotViewDiameter: CGFloat = 0.1 {
+    //        didSet {
+    //            reloadData()
+    //        }
+    //    }
+    
     public var inset: UIEdgeInsets = .zero {
         didSet {
             if let layout = collectionViewLayout as? KoyomiLayout, layout.inset != inset {
@@ -269,7 +271,7 @@ final public class Koyomi: UICollectionView {
     
     // KoyomiDelegate
     public weak var calendarDelegate: KoyomiDelegate?
-
+    
     // Fileprivate properties
     fileprivate var highlightedDayColor = UIColor.KoyomiColor.black
     fileprivate var highlightedDayBackgrondColor: UIColor = .white
@@ -283,7 +285,7 @@ final public class Koyomi: UICollectionView {
     
     fileprivate var dayLabelFont: UIFont?
     fileprivate var weekLabelFont: UIFont?
-
+    
     // MARK: - Initialization -
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -332,6 +334,18 @@ final public class Koyomi: UICollectionView {
     @discardableResult
     public func select(date: Date, to toDate: Date? = nil) -> Self {
         model.select(from: date, to: toDate)
+        return self
+    }
+    
+    @discardableResult
+    public func markFinished(date: Date) -> Self {
+        model.markFinished(date: date)
+        return self
+    }
+    
+    @discardableResult
+    public func markUnFinished(date: Date) -> Self {
+        model.markUnFinished(date: date)
         return self
     }
     
@@ -407,6 +421,8 @@ private extension Koyomi {
         let style: KoyomiCell.CellStyle
         let textColor: UIColor
         let isSelected: Bool
+        let isMarked: DotStatus
+        
         let backgroundColor: UIColor
         let font: UIFont?
         let content: String
@@ -426,9 +442,14 @@ private extension Koyomi {
             postion = weekPosition
             
         } else {
-
+            
             // Configure appearance properties for day cell
             isSelected = model.isSelect(with: indexPath)
+            
+            
+            //configure dots
+            isMarked = model.isMarked(with: indexPath)
+            cell.setupMarked(isMarked)
             
             textColor = {
                 var baseColor: UIColor {
@@ -515,8 +536,6 @@ private extension Koyomi {
         cell.contentPosition = postion
         cell.circularViewDiameter = circularViewDiameter
         
-        cell.dotViewDiameter = dotViewDiameter
-        
         let selectionColor: UIColor = {
             if isSelected {
                 return calendarDelegate?.koyomi?(self, selectionColorForItemAt: indexPath, date: date) ?? selectedStyleColor
@@ -557,7 +576,7 @@ extension Koyomi: UICollectionViewDelegate {
             date   = model.date(at: indexPath)
             toDate = nil
             length = 1
-        
+            
         case .sequence(_):
             let willSelectDates = model.willSelectDates(with: indexPath)
             date   = willSelectDates.from

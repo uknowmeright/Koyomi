@@ -57,9 +57,21 @@ final class KoyomiCell: UICollectionViewCell {
         }
     }
     
-    var dotViewDiameter: CGFloat = 0.1 {
+    var dotViewDiameter: CGFloat = 0.5
+    var dotStatus : DotStatus = .none {
         didSet {
             configureDotView()
+        }
+    }
+    
+    func setupMarked(_ marked: DotStatus){
+        self.dotViewDiameter = 0.1
+        self.dotStatus = marked
+        
+        if marked == .none{
+            dotView.isHidden = true
+        }else{
+            dotView.isHidden = false
         }
     }
     
@@ -93,7 +105,7 @@ final class KoyomiCell: UICollectionViewCell {
             self.backgroundColor = isSelected ? color : backgroundColor
             
             circularView.isHidden  = true
-            dotView.isHidden  = true
+            //dotView.isHidden  = true
             lineView.isHidden = true
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
@@ -104,17 +116,17 @@ final class KoyomiCell: UICollectionViewCell {
             self.backgroundColor = backgroundColor
             
             circularView.isHidden  = false
-            dotView.isHidden  = true
+            //dotView.isHidden  = true
             lineView.isHidden = true
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
             
         case .dot:
-            circularView.backgroundColor = color
+            //dotView.backgroundColor = color
             self.backgroundColor = backgroundColor
             
             circularView.isHidden  = true
-            dotView.isHidden  = false
+            //dotView.isHidden  = false
             lineView.isHidden = true
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
@@ -123,7 +135,7 @@ final class KoyomiCell: UICollectionViewCell {
         case .semicircleEdge(let position):
             lineView.isHidden = true
             circularView.isHidden = true
-            dotView.isHidden  = true
+            //dotView.isHidden  = true
             
             if case .left = position {
                 rightSemicircleView.isHidden = false
@@ -161,7 +173,7 @@ final class KoyomiCell: UICollectionViewCell {
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
             circularView.isHidden = true
-            dotView.isHidden  = true
+            //dotView.isHidden  = true
             lineView.isHidden = false
             lineView.backgroundColor = color
             
@@ -233,6 +245,7 @@ private extension KoyomiCell {
         lineView.frame = CGRect(origin: .init(x: 0, y: (bounds.height - lineViewSize.height) / 2), size: lineViewSize)
         lineView.isHidden = true
         addSubview(lineView)
+        
     }
     
     func adjustSubViewsFrame() {
@@ -249,10 +262,51 @@ private extension KoyomiCell {
         circularView.layer.cornerRadius = diameter / 2
     }
     
-    func configureDotView() {
+    private func getBothDots(){
         let diameter = bounds.width * dotViewDiameter
-        circularView.frame = CGRect(x: (bounds.width - diameter) / 2, y: (bounds.height - diameter), width: diameter, height: diameter)
-        circularView.layer.cornerRadius = diameter / 2
+        
+        dotView.frame = CGRect(x: (bounds.width - diameter * 4) / 2, y: (bounds.height - diameter) - 3, width: diameter * 4, height: diameter * 2)
+        
+        let dot1 = UIView()
+        dot1.frame = CGRect(x: 0, y: 0, width: diameter, height: diameter)
+        dot1.backgroundColor = .green
+        dotView.addSubview(dot1)
+        dot1.layer.cornerRadius = diameter / 2
+        
+        let dot2 = UIView()
+        dot2.frame = CGRect(x: diameter * 3, y: 0, width: diameter, height: diameter)
+        dot2.backgroundColor = .red
+        dotView.addSubview(dot2)
+        dot2.layer.cornerRadius = diameter / 2
+        
+        dotView.backgroundColor = .clear
+    }
+    
+    private func getOneDot(_ color: UIColor){
+        let diameter = bounds.width * dotViewDiameter
+        
+        dotView.frame = CGRect(x: (bounds.width - diameter) / 2, y: (bounds.height - diameter) - 3, width: diameter, height: diameter * 2)
+        
+        let dot1 = UIView()
+        dot1.frame = CGRect(x: 0, y: 0, width: diameter, height: diameter)
+        dot1.backgroundColor = color
+        dotView.addSubview(dot1)
+        dot1.layer.cornerRadius = diameter / 2
+        
+        dotView.backgroundColor = .clear
+    }
+    
+    func configureDotView() {
+        switch self.dotStatus {
+        case .both:
+            getBothDots()
+        case .oneFinished:
+            getOneDot(.green)
+        case .oneUnfinished:
+            getOneDot(.red)
+        case .none:
+            return
+        }
     }
     
     func configureLineView() {
@@ -267,3 +321,4 @@ private extension KoyomiCell {
         }()
     }
 }
+

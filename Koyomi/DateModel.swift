@@ -21,7 +21,7 @@ final class DateModel: NSObject {
     
     enum WeekType: String {
         case monday, tuesday, wednesday, thursday, friday, saturday, sunday
-
+        
         init?(_ indexPath: IndexPath) {
             let firstWeekday = Calendar.current.firstWeekday
             switch indexPath.row % 7 {
@@ -46,6 +46,7 @@ final class DateModel: NSObject {
     // Fileprivate properties
     fileprivate var currentDates: [Date] = []
     fileprivate var selectedDates: [Date: Bool] = [:]
+    fileprivate var markedDates: [Date: DotStatus] = [:]
     fileprivate var highlightedDates: [Date] = []
     fileprivate var currentDate: Date = .init()
     
@@ -119,6 +120,37 @@ final class DateModel: NSObject {
         return selectedDates[date] == true ? nil : date
     }
     
+    
+    //Custom Marked Dates
+    func markFinished(date: Date) {
+        if let toDate = date.formated() {
+            if markedDates[toDate] != nil{
+                if markedDates[toDate] == .none{
+                    markedDates[toDate] = .oneFinished
+                }else if markedDates[toDate] == .oneUnfinished{
+                    markedDates[toDate] = .both
+                }
+            }else{
+                markedDates[toDate] = .oneFinished
+            }
+        }
+    }
+    
+    func markUnFinished(date: Date) {
+        if let toDate = date.formated() {
+            if markedDates[toDate] != nil{
+                if markedDates[toDate] == .none{
+                    markedDates[toDate] = .oneUnfinished
+                }else if markedDates[toDate] == .oneFinished{
+                    markedDates[toDate] = .both
+                }
+            }else{
+                markedDates[toDate] = .oneUnfinished
+            }
+        }
+    }
+    
+    
     // Select date in programmatically
     func select(from fromDate: Date, to toDate: Date?) {
         if let toDate = toDate?.formated() {
@@ -165,18 +197,18 @@ final class DateModel: NSObject {
                 sequenceDates.start = selectedDate
                 selectedDates[selectedDate] = true
                 
-            // user has selected sequence date
+                // user has selected sequence date
             } else if let _ = sequenceDates.start, let _ = sequenceDates.end {
                 sequenceDates.start = selectedDate
                 sequenceDates.end   = nil
                 selectedDates.forEach { selectedDates[$0.0] = selectedDate == $0.0 ? true : false }
                 
-            // user select selected date
+                // user select selected date
             } else if let start = sequenceDates.start , sequenceDates.end == nil && start == selectedDate {
                 sequenceDates.start = nil
                 selectedDates[selectedDate] = false
                 
-            // user has selected a date
+                // user has selected a date
             } else if let start = sequenceDates.start , sequenceDates.end == nil && start != selectedDate {
                 
                 let isSelectedBeforeDay = selectedDate < start
@@ -246,6 +278,11 @@ final class DateModel: NSObject {
         return selectedDates[date] ?? false
     }
     
+    func isMarked(with indexPath: IndexPath) -> DotStatus {
+        let date = currentDates[indexPath.row]
+        return markedDates[date] ?? .none
+    }
+    
     func isHighlighted(with indexPath: IndexPath) -> Bool {
         let date = currentDates[indexPath.row]
         return highlightedDates.contains(date)
@@ -313,16 +350,16 @@ private extension DateModel {
         selectedDates = [:]
         
         guard let indexAtBeginning = indexAtBeginning(in: .current) else { return }
-
+        
         var components: DateComponents = .init()
         currentDates = (0..<DateModel.maxCellCount).flatMap { index in
-                components.day = index - indexAtBeginning
-                return calendar.date(byAdding: components, to: atBeginning(of: .current))
+            components.day = index - indexAtBeginning
+            return calendar.date(byAdding: components, to: atBeginning(of: .current))
             }
             .map { (date: Date) in
                 selectedDates[date] = false
                 return date
-            }
+        }
         
         let selectedDateKeys = selectedDates.keys(of: true)
         selectedDateKeys.forEach { selectedDates[$0] = true }
@@ -352,3 +389,4 @@ private extension DateModel {
         return calendar.date(byAdding: components, to: currentDate) ?? Date()
     }
 }
+
