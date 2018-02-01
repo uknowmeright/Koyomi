@@ -117,7 +117,7 @@ public enum SelectionMode {
     case single(style: Style), multiple(style: Style), sequence(style: SequenceStyle), none
     
     public enum SequenceStyle { case background, circle, line, semicircleEdge }
-    public enum Style { case background, circle, line }
+    public enum Style { case background, circle, line, dot }
 }
 
 // MARK: - ContentPosition -
@@ -211,6 +211,12 @@ final public class Koyomi: UICollectionView {
         }
     }
     @IBInspectable public var circularViewDiameter: CGFloat = 0.75 {
+        didSet {
+            reloadData()
+        }
+    }
+    
+    @IBInspectable public var dotViewDiameter: CGFloat = 0.1 {
         didSet {
             reloadData()
         }
@@ -483,6 +489,10 @@ private extension Koyomi {
                 case (.sequence(style: .line), true):
                     return .line(position: sequencePosition)
                     
+                case (.single(style: .dot), true), (.multiple(style: .dot), true):
+                    // Position is always nil.
+                    return .dot
+                    
                 default: return .standard
                 }
             }()
@@ -504,6 +514,9 @@ private extension Koyomi {
         }()
         cell.contentPosition = postion
         cell.circularViewDiameter = circularViewDiameter
+        
+        cell.dotViewDiameter = dotViewDiameter
+        
         let selectionColor: UIColor = {
             if isSelected {
                 return calendarDelegate?.koyomi?(self, selectionColorForItemAt: indexPath, date: date) ?? selectedStyleColor

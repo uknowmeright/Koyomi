@@ -13,6 +13,7 @@ final class KoyomiCell: UICollectionViewCell {
     // Fileprivate properties
     fileprivate let contentLabel: UILabel = .init()
     fileprivate let circularView: UIView  = .init()
+    fileprivate let dotView: UIView  = .init()
     fileprivate let lineView: UIView      = .init()
     
     fileprivate let leftSemicircleView: UIView  = .init()
@@ -21,7 +22,7 @@ final class KoyomiCell: UICollectionViewCell {
     static let identifier = "KoyomiCell"
     
     enum CellStyle {
-        case standard, circle, semicircleEdge(position: SequencePosition), line(position: SequencePosition?)
+        case standard, circle, dot, semicircleEdge(position: SequencePosition), line(position: SequencePosition?)
         
         enum SequencePosition { case left, middle, right }
     }
@@ -56,6 +57,12 @@ final class KoyomiCell: UICollectionViewCell {
         }
     }
     
+    var dotViewDiameter: CGFloat = 0.1 {
+        didSet {
+            configureDotView()
+        }
+    }
+    
     // MARK: - Initializer -
     
     override init(frame: CGRect) {
@@ -86,6 +93,7 @@ final class KoyomiCell: UICollectionViewCell {
             self.backgroundColor = isSelected ? color : backgroundColor
             
             circularView.isHidden  = true
+            dotView.isHidden  = true
             lineView.isHidden = true
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
@@ -96,6 +104,17 @@ final class KoyomiCell: UICollectionViewCell {
             self.backgroundColor = backgroundColor
             
             circularView.isHidden  = false
+            dotView.isHidden  = true
+            lineView.isHidden = true
+            rightSemicircleView.isHidden = true
+            leftSemicircleView.isHidden  = true
+            
+        case .dot:
+            circularView.backgroundColor = color
+            self.backgroundColor = backgroundColor
+            
+            circularView.isHidden  = true
+            dotView.isHidden  = false
             lineView.isHidden = true
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
@@ -104,6 +123,7 @@ final class KoyomiCell: UICollectionViewCell {
         case .semicircleEdge(let position):
             lineView.isHidden = true
             circularView.isHidden = true
+            dotView.isHidden  = true
             
             if case .left = position {
                 rightSemicircleView.isHidden = false
@@ -141,6 +161,7 @@ final class KoyomiCell: UICollectionViewCell {
             rightSemicircleView.isHidden = true
             leftSemicircleView.isHidden  = true
             circularView.isHidden = true
+            dotView.isHidden  = true
             lineView.isHidden = false
             lineView.backgroundColor = color
             
@@ -195,6 +216,9 @@ private extension KoyomiCell {
         circularView.isHidden = true
         addSubview(circularView)
         
+        dotView.isHidden = true
+        addSubview(dotView)
+        
         leftSemicircleView.frame = CGRect(x: 0, y: 0, width: bounds.width / 2, height: bounds.height)
         leftSemicircleView.isHidden = true
         addSubview(leftSemicircleView)
@@ -222,6 +246,12 @@ private extension KoyomiCell {
     func configureCircularView() {
         let diameter = bounds.width * circularViewDiameter
         circularView.frame = CGRect(x: (bounds.width - diameter) / 2, y: (bounds.height - diameter) / 2, width: diameter, height: diameter)
+        circularView.layer.cornerRadius = diameter / 2
+    }
+    
+    func configureDotView() {
+        let diameter = bounds.width * dotViewDiameter
+        circularView.frame = CGRect(x: (bounds.width - diameter) / 2, y: (bounds.height - diameter), width: diameter, height: diameter)
         circularView.layer.cornerRadius = diameter / 2
     }
     
