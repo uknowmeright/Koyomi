@@ -155,6 +155,9 @@ final public class Koyomi: UICollectionView {
         }
     }
     
+    public var dotFinishedColor: UIColor = UIColor.green
+    public var dotUnFinishedColor: UIColor = UIColor.red
+    
     public var style: KoyomiStyle = .standard {
         didSet {
             dayBackgrondColor  = style.colors.dayBackgrond
@@ -429,6 +432,9 @@ private extension Koyomi {
         let postion: ContentPosition
         
         let date = model.date(at: indexPath)
+        
+        cell.dotFinishedColor = dotFinishedColor
+        cell.dotUnFinishedColor = dotUnFinishedColor
         
         if indexPath.section == 0 {
             

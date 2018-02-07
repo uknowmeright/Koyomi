@@ -57,6 +57,10 @@ final class KoyomiCell: UICollectionViewCell {
         }
     }
     
+    
+    var dotFinishedColor: UIColor = UIColor.green
+    var dotUnFinishedColor: UIColor = UIColor.red
+    
     var dotViewDiameter: CGFloat = 0.5
     var dotStatus : DotStatus = .none {
         didSet {
@@ -269,13 +273,13 @@ private extension KoyomiCell {
         
         let dot1 = UIView()
         dot1.frame = CGRect(x: 0, y: 0, width: diameter, height: diameter)
-        dot1.backgroundColor = .green
+        dot1.backgroundColor = dotFinishedColor
         dotView.addSubview(dot1)
         dot1.layer.cornerRadius = diameter / 2
         
         let dot2 = UIView()
         dot2.frame = CGRect(x: diameter * 3, y: 0, width: diameter, height: diameter)
-        dot2.backgroundColor = .red
+        dot2.backgroundColor = dotUnFinishedColor
         dotView.addSubview(dot2)
         dot2.layer.cornerRadius = diameter / 2
         
@@ -301,9 +305,9 @@ private extension KoyomiCell {
         case .both:
             getBothDots()
         case .oneFinished:
-            getOneDot(.green)
+            getOneDot(dotFinishedColor)
         case .oneUnfinished:
-            getOneDot(.red)
+            getOneDot(dotUnFinishedColor)
         case .none:
             return
         }
