@@ -36,7 +36,7 @@ extension UIColor {
         
         static let red: UIColor      = .init(hex: 0xff3b30)
         static let orange: UIColor   = .init(hex: 0xff9500)
-        static let green: UIColor    = .init(hex: 0x4cd964)
+        static let green: UIColor    = .init(hex: 0xB3CE52)
         static let blue: UIColor     = .init(hex: 0x007aff)
         static let purple: UIColor   = .init(hex: 0x5856d6)
         static let yellow: UIColor   = .init(hex: 0xffcc00)
