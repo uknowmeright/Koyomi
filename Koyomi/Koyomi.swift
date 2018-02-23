@@ -270,7 +270,7 @@ final public class Koyomi: UICollectionView {
     @IBInspectable public var selectedStyleColor: UIColor = UIColor.KoyomiColor.red
     
     public enum SelectedTextState { case change(UIColor), keeping }
-    public var selectedDayTextState: SelectedTextState = .change(.white)
+    public var selectedDayTextState: SelectedTextState = .change(UIColor.KoyomiColor.black)
     
     // KoyomiDelegate
     public weak var calendarDelegate: KoyomiDelegate?
