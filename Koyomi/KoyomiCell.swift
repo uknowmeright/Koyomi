@@ -51,7 +51,7 @@ final class KoyomiCell: UICollectionViewCell {
             configureLineView()
         }
     }
-    var circularViewDiameter: CGFloat = 0.75 {
+    var circularViewDiameter: CGFloat = 0.6 {
         didSet {
             configureCircularView()
         }

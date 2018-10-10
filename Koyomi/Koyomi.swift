@@ -215,7 +215,7 @@ final public class Koyomi: UICollectionView {
             }
         }
     }
-    @IBInspectable public var circularViewDiameter: CGFloat = 0.75 {
+    @IBInspectable public var circularViewDiameter: CGFloat = 0.6 {
         didSet {
             reloadData()
         }
